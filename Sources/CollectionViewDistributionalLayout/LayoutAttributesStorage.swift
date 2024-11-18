@@ -16,12 +16,17 @@ final class LayoutAttributesStorage {
     
     var isEmpty: Bool { layoutAttributes.isEmpty }
     
-    func setEstimatedAttributes(at indexPath: IndexPath, zIndex: Int) {
+    @MainActor
+    func setEstimatedAttributes(
+        at indexPath: IndexPath,
+        zIndex: Int,
+        of collectionView: UICollectionView        
+    ) {
         layoutAttributes[indexPath] = LayoutAttributes(
             distribution: nil,
             x: sectionInset.left, // shouldInvalidateを呼ばせるために、見える位置に配置する
             width: estimatedItemSize.width,
-            height: estimatedItemSize.height,
+            height: collectionView.safeAreaFrame.inset(by: sectionInset).height,
             zIndex: zIndex
         )
     }

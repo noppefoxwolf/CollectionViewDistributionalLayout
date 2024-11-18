@@ -18,7 +18,11 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         case .none where layoutAttributesStorage.isEmpty:
             // 1. Set estimated
             for (zIndex, indexPath) in collectionView.indexPathSequence.enumerated() {
-                layoutAttributesStorage.setEstimatedAttributes(at: indexPath, zIndex: zIndex)
+                layoutAttributesStorage.setEstimatedAttributes(
+                    at: indexPath,
+                    zIndex: zIndex,
+                    of: collectionView
+                )
             }
         case .fill:
             // 7. If already all items are self-sized, adjust the layout
