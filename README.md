@@ -34,7 +34,7 @@ collectionView.collectionViewLayout = layout
 ]
 ```
 
-## Features
+## Supported featrues
 
 - [x] Self-size cells
 - [ ] orientation
