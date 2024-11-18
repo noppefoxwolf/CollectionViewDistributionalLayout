@@ -43,17 +43,16 @@ final class LayoutAttributesStorage {
     }
     
     func contentSize() -> CGSize {
-        // FIXME: height is not supported
         var size: CGSize = .zero
         for section in sectionSequence() {
             let sectionSize = sectionSize(at: section)
             size.width += sectionSize.width
+            size.height = max(sectionSize.height, size.height)
         }
         return size
     }
     
     func sectionSize(at section: Int) -> CGSize {
-        // FIXME: height is not supported
         var size: CGSize = .zero
         size.width += sectionInset.left
         let rows = rowSequence(in: section)
@@ -62,6 +61,7 @@ final class LayoutAttributesStorage {
             let layoutAttributes = layoutAttributes[indexPath]!
             size.width += layoutAttributes.width
             size.width += minimumInteritemSpacing
+            size.height = max(layoutAttributes.height, size.height)
         }
         if rows.count >= 1 {
             size.width -= minimumInteritemSpacing
@@ -70,7 +70,7 @@ final class LayoutAttributesStorage {
         return size
     }
     
-    func itemWidth(at section: Int) -> CGFloat {
+    func allItemWidth(at section: Int) -> CGFloat {
         layoutAttributes.filter({ $0.key.section == section }).values.map(\.width).reduce(0, +)
     }
     
@@ -100,7 +100,7 @@ final class LayoutAttributesStorage {
         let proportionalSectionSizes = proportionalSectionSizes(of: collectionView)
         for section in sectionSequence() {
             let sectionWidth = proportionalSectionSizes[section]!
-            let sectionItemWidth = itemWidth(at: section)
+            let sectionItemWidth = allItemWidth(at: section)
             let rows = rowSequence(in: section)
             
             let sectionInsets = sectionInset.left + sectionInset.right

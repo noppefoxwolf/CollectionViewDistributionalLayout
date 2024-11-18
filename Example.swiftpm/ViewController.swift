@@ -51,7 +51,7 @@ final class ViewController: UICollectionViewController {
         
         let layout = CollectionViewDistributionalLayout()
 //        let layout = UICollectionViewCompositionalLayout.list(using: .init(appearance: .plain))
-        collectionView.setCollectionViewLayout(layout, animated: false)
+        collectionView.collectionViewLayout = layout
         collectionView.dataSource = dataSource
         
         snapshot.appendSections([.items])
