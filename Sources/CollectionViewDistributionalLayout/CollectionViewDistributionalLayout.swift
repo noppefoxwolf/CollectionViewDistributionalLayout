@@ -37,7 +37,6 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
                 distribution = .fill
             case .fillEqually:
                 logger.debug("Distribution is fillEqually")
-                // FIXME: 2個以上のセクション
                 let equalItemWidth = layoutAttributesStorage.equalItemWidth(of: collectionView)
                 layoutAttributesStorage.adjustLayoutAttributes { indexPath, x in
                     layoutAttributesStorage.layoutAttributes[indexPath]?.distribution = .fillEqually
@@ -48,7 +47,6 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
                 distribution = .fillEqually
             case .fillProportionally:
                 logger.debug("Distribution is fillProportionally")
-                // FIXME: 2個以上のセクション
                 let proportionalItemSizes = layoutAttributesStorage.proportionalItemSizes(of: collectionView)
                 layoutAttributesStorage.adjustLayoutAttributes { indexPath, x in
                     let proportionallyItemWidth = proportionalItemSizes[indexPath]!
