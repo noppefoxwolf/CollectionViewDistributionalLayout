@@ -12,7 +12,6 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
     
     public override func prepare() {
         super.prepare()
-        
         guard let collectionView else { return }
         
         switch distribution {

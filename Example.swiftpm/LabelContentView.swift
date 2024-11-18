@@ -25,7 +25,6 @@ final class LabelContentView: UIView, UIContentView {
 
         super.init(frame: .zero)
         
-//        label.backgroundColor = .blue
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
@@ -34,6 +33,7 @@ final class LabelContentView: UIView, UIContentView {
             label.leadingAnchor.constraint(equalTo: leadingAnchor),
             label.bottomAnchor.constraint(equalTo: bottomAnchor),
             label.trailingAnchor.constraint(equalTo: trailingAnchor),
+            label.widthAnchor.constraint(greaterThanOrEqualToConstant: 64),
         ])
     }
 
@@ -44,7 +44,6 @@ final class LabelContentView: UIView, UIContentView {
     func configure(configuration: UIContentConfiguration) {
         guard let configuration = configuration as? Configuration else { return }
         label.text = configuration.text
-        label.backgroundColor = .systemGray
     }
 }
 
