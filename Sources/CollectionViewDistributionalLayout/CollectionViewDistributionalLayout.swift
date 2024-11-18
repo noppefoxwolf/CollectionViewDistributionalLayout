@@ -10,7 +10,6 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
     var distribution: Distribution? = nil
     let layoutAttributesStorage = LayoutAttributesStorage()
     
-    
     public override func prepare() {
         super.prepare()
         
@@ -18,43 +17,17 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         
         switch distribution {
         case .none where layoutAttributesStorage.isEmpty:
+            // 1. Set estimated
             for (zIndex, indexPath) in collectionView.indexPathSequence.enumerated() {
                 layoutAttributesStorage.setEstimatedAttributes(at: indexPath, zIndex: zIndex)
             }
         case .fill:
-            let contentWidth = layoutAttributesStorage.contentWidth()
-            
-            if contentWidth <= collectionView.safeAreaFrame.width {
-                let maxItemWidth = layoutAttributesStorage.maxItemWidth()
-                let equalItemWidth = layoutAttributesStorage.equalItemWidth(of: collectionView)
-                if maxItemWidth <= equalItemWidth {
-                    logger.debug("Distribution is fillEqually")
-                    var offsetX: CGFloat = layoutAttributesStorage.sectionInset.left
-                    // TODO: ２個以上のセクションに対応する
-                    for indexPath in layoutAttributesStorage.layoutAttributes.keys {
-                        layoutAttributesStorage.layoutAttributes[indexPath]?.distribution = .fillEqually
-                        layoutAttributesStorage.layoutAttributes[indexPath]?.width = equalItemWidth
-                        layoutAttributesStorage.layoutAttributes[indexPath]?.x = offsetX
-                        offsetX += equalItemWidth
-                    }
-                    offsetX += layoutAttributesStorage.sectionInset.right
-                    distribution = .fillEqually
-                } else {
-                    logger.debug("Distribution is fillProportionally")
-                    var offsetX: CGFloat = layoutAttributesStorage.sectionInset.left
-                    // TODO: ２個以上のセクションに対応する
-                    let proportionalItemSizes = layoutAttributesStorage.proportionalItemSizes(of: collectionView)
-                    for indexPath in layoutAttributesStorage.layoutAttributes.keys {
-                        let proportionallyItemWidth = proportionalItemSizes[indexPath]!
-                        layoutAttributesStorage.layoutAttributes[indexPath]?.distribution = .fillProportionally
-                        layoutAttributesStorage.layoutAttributes[indexPath]?.width = proportionallyItemWidth
-                        layoutAttributesStorage.layoutAttributes[indexPath]?.x = offsetX
-                        offsetX += proportionallyItemWidth
-                    }
-                    offsetX += layoutAttributesStorage.sectionInset.right
-                    distribution = .fillProportionally
-                }
-            } else {
+            // 7. If already all items are self-sized, adjust the layout
+            let preferredDistribution = layoutAttributesStorage.preferredDistribution(
+                of: collectionView
+            )
+            switch preferredDistribution {
+            case .fill:
                 logger.debug("Distribution is fill")
                 var offsetX: CGFloat = layoutAttributesStorage.sectionInset.left
                 for key in layoutAttributesStorage.layoutAttributes.keys {
@@ -63,6 +36,34 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
                 }
                 offsetX += layoutAttributesStorage.sectionInset.right
                 distribution = .fill
+            case .fillEqually:
+                logger.debug("Distribution is fillEqually")
+                let equalItemWidth = layoutAttributesStorage.equalItemWidth(of: collectionView)
+                
+                var offsetX: CGFloat = layoutAttributesStorage.sectionInset.left
+                // TODO: ２個以上のセクションに対応する
+                for indexPath in layoutAttributesStorage.layoutAttributes.keys {
+                    layoutAttributesStorage.layoutAttributes[indexPath]?.distribution = .fillEqually
+                    layoutAttributesStorage.layoutAttributes[indexPath]?.width = equalItemWidth
+                    layoutAttributesStorage.layoutAttributes[indexPath]?.x = offsetX
+                    offsetX += equalItemWidth
+                }
+                offsetX += layoutAttributesStorage.sectionInset.right
+                distribution = .fillEqually
+            case .fillProportionally:
+                logger.debug("Distribution is fillProportionally")
+                var offsetX: CGFloat = layoutAttributesStorage.sectionInset.left
+                // TODO: ２個以上のセクションに対応する
+                let proportionalItemSizes = layoutAttributesStorage.proportionalItemSizes(of: collectionView)
+                for indexPath in layoutAttributesStorage.layoutAttributes.keys {
+                    let proportionallyItemWidth = proportionalItemSizes[indexPath]!
+                    layoutAttributesStorage.layoutAttributes[indexPath]?.distribution = .fillProportionally
+                    layoutAttributesStorage.layoutAttributes[indexPath]?.width = proportionallyItemWidth
+                    layoutAttributesStorage.layoutAttributes[indexPath]?.x = offsetX
+                    offsetX += proportionallyItemWidth
+                }
+                offsetX += layoutAttributesStorage.sectionInset.right
+                distribution = .fillProportionally
             }
         default:
             break
@@ -76,47 +77,40 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         in rect: CGRect
     ) -> [UICollectionViewLayoutAttributes]? {
         guard let collectionView else { return nil }
+        // 2. Return intersected and estimated items.
         let elements: [UICollectionViewLayoutAttributes] = collectionView.indexPathSequence.compactMap { (indexPath) in
-            let layoutAttribute = makeUICollectionViewLayoutAttributes(forCellWith: indexPath)
-            let isAutomaticSize = layoutAttribute.frame.width == layoutAttributesStorage.estimatedItemSize.width
+            let layoutAttribute = layoutAttributesStorage.makeUICollectionViewLayoutAttributes(
+                forCellWith: indexPath
+            )
+            // 3. estimated items always intersects
             let intersects = rect.intersects(layoutAttribute.frame)
-            guard intersects || isAutomaticSize else {
+            guard intersects else {
                 return nil
             }
             return layoutAttribute
         }
-        logger.debug("layoutAttributesForElements \(elements.count)")
         return elements
     }
     
-    public override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
-        logger.debug("layoutAttributesForItem at \(indexPath)")
-        return makeUICollectionViewLayoutAttributes(forCellWith: indexPath)
-    }
-    
-    func makeUICollectionViewLayoutAttributes(forCellWith indexPath: IndexPath) -> UICollectionViewLayoutAttributes {
-        let layoutAttributes = layoutAttributesStorage.layoutAttributes[indexPath]!
-        let attrs = UICollectionViewLayoutAttributes(forCellWith: indexPath)
-        attrs.frame = CGRect(
-            x: layoutAttributes.x,
-            y: 0,
-            width: layoutAttributes.width,
-            height: collectionViewContentSize.height
+    public override func layoutAttributesForItem(
+        at indexPath: IndexPath
+    ) -> UICollectionViewLayoutAttributes? {
+        layoutAttributesStorage.makeUICollectionViewLayoutAttributes(
+            forCellWith: indexPath
         )
-        attrs.zIndex = layoutAttributes.zIndex
-        return attrs
     }
     
     public override func shouldInvalidateLayout(
         forPreferredLayoutAttributes preferredAttributes: UICollectionViewLayoutAttributes,
         withOriginalAttributes originalAttributes: UICollectionViewLayoutAttributes
     ) -> Bool {
-        // ここが全てのindexPath分呼ばれないことがある
         let layoutAttribute = layoutAttributesStorage.layoutAttributes[preferredAttributes.indexPath]!
         switch layoutAttribute.distribution {
         case .none, .fill:
+            // 4. If the item is not self-sized, invalidate the layout
             return originalAttributes.size.width != preferredAttributes.size.width
         case .fillEqually, .fillProportionally:
+            // 8. All items are self-sized, no need to invalidate the layout
             return false
         }
     }
@@ -133,13 +127,15 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         let widthDiff = originalAttributes.frame.width - preferredAttributes.frame.width
         context.contentSizeAdjustment.width -= widthDiff
         
-        let isAboveTopEdge = preferredAttributes.frame.minX < (collectionView?.bounds.minX ?? 0)
-        context.contentOffsetAdjustment.x -= isAboveTopEdge ? -widthDiff : 0
+        let isAboveLeftEdge = preferredAttributes.frame.minX < (collectionView?.bounds.minX ?? 0)
+        context.contentOffsetAdjustment.x -= isAboveLeftEdge ? -widthDiff : 0
         
+        // 5. Update the self-sized attributes
         layoutAttributesStorage.layoutAttributes[preferredAttributes.indexPath] = LayoutAttributes(
             distribution: .fill,
             x: preferredAttributes.frame.minX,
             width: preferredAttributes.size.width,
+            height: collectionView!.safeAreaFrame.height,
             zIndex: preferredAttributes.zIndex
         )
         
@@ -151,10 +147,12 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
     ) {
         super.invalidateLayout(with: context)
         
+        // 6. After self-sized items are invalidated, update the distribution flag
         if !layoutAttributesStorage.layoutAttributes.isEmpty && layoutAttributesStorage.layoutAttributes.allSatisfy({ $0.value.distribution == .fill }) {
             distribution = .fill
         }
         
+        // 0. if the data source is invalidated, reset the layout
         if context.invalidateDataSourceCounts {
             layoutAttributesStorage.layoutAttributes.removeAll()
             distribution = nil
