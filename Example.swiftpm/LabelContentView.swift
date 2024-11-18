@@ -44,6 +44,7 @@ final class LabelContentView: UIView, UIContentView {
     func configure(configuration: UIContentConfiguration) {
         guard let configuration = configuration as? Configuration else { return }
         label.text = configuration.text
+        label.backgroundColor = .systemGray
     }
 }
 
