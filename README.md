@@ -2,6 +2,8 @@
 
 A UICollectionViewLayout subclass to distribute cells in a collection view with a distribution algorithm.
 
+![](https://github.com/noppefoxwolf/CollectionViewDistributionalLayout/blob/main/.github/screenshot.gif)
+
 ## Anatomy
 
 ```mermaid
