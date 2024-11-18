@@ -29,47 +29,41 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
             switch preferredDistribution {
             case .fill:
                 logger.debug("Distribution is fill")
-                var offsetX: CGFloat = layoutAttributesStorage.sectionInset.left
-                for key in layoutAttributesStorage.layoutAttributes.keys {
-                    layoutAttributesStorage.layoutAttributes[key]!.x = offsetX
-                    offsetX += layoutAttributesStorage.layoutAttributes[key]!.width
+                layoutAttributesStorage.adjustLayoutAttributes { indexPath, x in
+                    layoutAttributesStorage.layoutAttributes[indexPath]!.x = x
+                    let width = layoutAttributesStorage.layoutAttributes[indexPath]!.width
+                    return width
                 }
-                offsetX += layoutAttributesStorage.sectionInset.right
                 distribution = .fill
             case .fillEqually:
                 logger.debug("Distribution is fillEqually")
+                // FIXME: 2個以上のセクション
                 let equalItemWidth = layoutAttributesStorage.equalItemWidth(of: collectionView)
-                
-                var offsetX: CGFloat = layoutAttributesStorage.sectionInset.left
-                // TODO: ２個以上のセクションに対応する
-                for indexPath in layoutAttributesStorage.layoutAttributes.keys {
+                layoutAttributesStorage.adjustLayoutAttributes { indexPath, x in
                     layoutAttributesStorage.layoutAttributes[indexPath]?.distribution = .fillEqually
                     layoutAttributesStorage.layoutAttributes[indexPath]?.width = equalItemWidth
-                    layoutAttributesStorage.layoutAttributes[indexPath]?.x = offsetX
-                    offsetX += equalItemWidth
+                    layoutAttributesStorage.layoutAttributes[indexPath]?.x = x
+                    return equalItemWidth
                 }
-                offsetX += layoutAttributesStorage.sectionInset.right
                 distribution = .fillEqually
             case .fillProportionally:
                 logger.debug("Distribution is fillProportionally")
-                var offsetX: CGFloat = layoutAttributesStorage.sectionInset.left
-                // TODO: ２個以上のセクションに対応する
+                // FIXME: 2個以上のセクション
                 let proportionalItemSizes = layoutAttributesStorage.proportionalItemSizes(of: collectionView)
-                for indexPath in layoutAttributesStorage.layoutAttributes.keys {
+                layoutAttributesStorage.adjustLayoutAttributes { indexPath, x in
                     let proportionallyItemWidth = proportionalItemSizes[indexPath]!
                     layoutAttributesStorage.layoutAttributes[indexPath]?.distribution = .fillProportionally
                     layoutAttributesStorage.layoutAttributes[indexPath]?.width = proportionallyItemWidth
-                    layoutAttributesStorage.layoutAttributes[indexPath]?.x = offsetX
-                    offsetX += proportionallyItemWidth
+                    layoutAttributesStorage.layoutAttributes[indexPath]?.x = x
+                    return proportionallyItemWidth
                 }
-                offsetX += layoutAttributesStorage.sectionInset.right
                 distribution = .fillProportionally
             }
         default:
             break
         }
         
-        collectionViewContentSize.width = layoutAttributesStorage.contentWidth()
+        collectionViewContentSize.width = layoutAttributesStorage.contentSize().width
         collectionViewContentSize.height = collectionView.safeAreaFrame.height
     }
     

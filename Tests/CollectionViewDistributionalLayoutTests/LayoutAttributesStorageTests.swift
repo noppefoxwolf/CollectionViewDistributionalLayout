@@ -13,6 +13,7 @@ struct LayoutAttributesStorageTests {
             distribution: nil,
             x: 0,
             width: 225,
+            height: 500,
             zIndex: 0
         )
         let indexPath10 = IndexPath(row: 1, section: 0)
@@ -20,6 +21,7 @@ struct LayoutAttributesStorageTests {
             distribution: nil,
             x: 0,
             width: 75,
+            height: 500,
             zIndex: 0
         )
         storage.sectionInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
@@ -43,5 +45,81 @@ struct LayoutAttributesStorageTests {
         ].reduce(0, +)
         
         #expect(width == 600)
+    }
+    
+    @MainActor
+    @Test
+    func orderedDictionarySpec() {
+        let storage = LayoutAttributesStorage()
+        storage.layoutAttributes[IndexPath(row: 2, section: 0)] = LayoutAttributes(
+            distribution: nil,
+            x: 0,
+            width: 225,
+            height: 500,
+            zIndex: 0
+        )
+        storage.layoutAttributes[IndexPath(row: 1, section: 0)] = LayoutAttributes(
+            distribution: nil,
+            x: 0,
+            width: 225,
+            height: 500,
+            zIndex: 0
+        )
+        storage.layoutAttributes[IndexPath(row: 0, section: 1)] = LayoutAttributes(
+            distribution: nil,
+            x: 0,
+            width: 225,
+            height: 500,
+            zIndex: 0
+        )
+        // OrderedDictionaryは追加順になる
+        #expect(storage.layoutAttributes.elements[0].key != IndexPath(row: 0, section: 0))
+        #expect(storage.layoutAttributes.elements[1].key == IndexPath(row: 1, section: 0))
+        #expect(storage.layoutAttributes.elements[2].key == IndexPath(row: 0, section: 1))
+    }
+    
+    @MainActor
+    @Test
+    func testContentSize() {
+        let storage = LayoutAttributesStorage()
+        storage.sectionInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+        storage.minimumInteritemSpacing = 10
+        
+        let indexPath00 = IndexPath(row: 0, section: 0)
+        storage.layoutAttributes[indexPath00] = LayoutAttributes(
+            distribution: nil,
+            x: 0,
+            width: 225,
+            height: 500,
+            zIndex: 0
+        )
+        let width1: CGFloat = [20, 225, 20].reduce(0, +)
+        #expect(storage.contentSize().width == width1)
+        
+        let indexPath10 = IndexPath(row: 1, section: 0)
+        storage.layoutAttributes[indexPath10] = LayoutAttributes(
+            distribution: nil,
+            x: 0,
+            width: 100,
+            height: 500,
+            zIndex: 0
+        )
+        let width2: CGFloat = [20, 225, 10, 100, 20].reduce(0, +)
+        #expect(storage.contentSize().width == width2)
+    }
+    
+    @Test
+    func sequence() {
+        let storage = LayoutAttributesStorage()
+        let indexPath10 = IndexPath(row: 1, section: 4)
+        storage.layoutAttributes[indexPath10] = LayoutAttributes(
+            distribution: nil,
+            x: 0,
+            width: 100,
+            height: 500,
+            zIndex: 0
+        )
+        #expect(storage.sectionSequence().first == 4)
+        #expect(storage.rowSequence(in: 4).first == 1)
     }
 }

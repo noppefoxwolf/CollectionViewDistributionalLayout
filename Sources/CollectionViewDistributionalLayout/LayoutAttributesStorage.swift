@@ -42,11 +42,24 @@ final class LayoutAttributesStorage {
         return attrs
     }
     
-    func contentWidth() -> CGFloat {
-        let allItemWidth = allItemWidth()
-        let sectionCount = layoutAttributes.keys.map(\.section).uniqued().map({ $0 }).count
-        let allSectionInsets = CGFloat(sectionCount) * (sectionInset.left + sectionInset.right)
-        return allItemWidth + allSectionInsets
+    func contentSize() -> CGSize {
+        // FIXME: height is not supported
+        var size: CGSize = .zero
+        for section in sectionSequence() {
+            size.width += sectionInset.left
+            let rows = rowSequence(in: section)
+            for row in rows {
+                let indexPath = IndexPath(row: row, section: section)
+                let layoutAttributes = layoutAttributes[indexPath]!
+                size.width += layoutAttributes.width
+                size.width += minimumInteritemSpacing
+            }
+            if rows.count >= 1 {
+                size.width -= minimumInteritemSpacing
+            }
+            size.width += sectionInset.right
+        }
+        return size
     }
     
     func allItemWidth() -> CGFloat {
@@ -78,7 +91,7 @@ final class LayoutAttributesStorage {
     
     @MainActor
     func preferredDistribution(of collectionView: UICollectionView) -> Distribution {
-        let contentWidth = contentWidth()
+        let contentWidth = contentSize().width
         if contentWidth <= collectionView.safeAreaFrame.width {
             let maxItemWidth = maxItemWidth()
             let equalItemWidth = equalItemWidth(of: collectionView)
@@ -90,5 +103,30 @@ final class LayoutAttributesStorage {
         } else {
             return .fill
         }
+    }
+    
+    func adjustLayoutAttributes(_ update: (_ indexPath: IndexPath, _ x: CGFloat) -> CGFloat) {
+        var offsetX: CGFloat = .zero
+        for section in sectionSequence() {
+            offsetX += sectionInset.left
+            let rows = rowSequence(in: section)
+            for row in rows {
+                let indexPath = IndexPath(row: row, section: section)
+                offsetX += update(indexPath, offsetX)
+                offsetX += minimumInteritemSpacing
+            }
+            if rows.count >= 1 {
+                offsetX -= minimumInteritemSpacing
+            }
+            offsetX += sectionInset.right
+        }
+    }
+    
+    func sectionSequence() -> [Int] {
+        layoutAttributes.keys.map(\.section).uniqued().sorted()
+    }
+    
+    func rowSequence(in section: Int) -> [Int] {
+        layoutAttributes.keys.filter({ $0.section == section }).map(\.row).uniqued().sorted()
     }
 }
