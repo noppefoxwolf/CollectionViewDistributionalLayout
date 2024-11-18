@@ -34,6 +34,13 @@ collectionView.collectionViewLayout = layout
 ]
 ```
 
+## Features
+
+- [x] Self-size cells
+- [ ] orientation
+- [ ] animation
+- [ ] vertical
+
 ## License
 
 CollectionViewDistributionalLayout is available under the MIT license. See the LICENSE file for more info.
