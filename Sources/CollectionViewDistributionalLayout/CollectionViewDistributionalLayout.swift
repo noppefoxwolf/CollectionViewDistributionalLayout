@@ -9,6 +9,7 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
     
     var distribution: Distribution? = nil
     let layoutAttributesStorage = LayoutAttributesStorage()
+    lazy var currentBounds: CGRect = collectionView?.bounds ?? .zero
     
     public override func prepare() {
         super.prepare()
@@ -154,11 +155,32 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         }
     }
     
-    // Orientation
+    // Ex: Orientation
     public override func prepare(forAnimatedBoundsChange oldBounds: CGRect) {
         logger.info("prepare for animated bounds change")
         super.prepare(forAnimatedBoundsChange: oldBounds)
         layoutAttributesStorage.unmarkDistributions()
+    }
+    
+    // Ex: Split View
+    public override func shouldInvalidateLayout(
+        forBoundsChange newBounds: CGRect
+    ) -> Bool {
+        currentBounds != newBounds
+    }
+    
+    public override func invalidationContext(
+        forBoundsChange newBounds: CGRect
+    ) -> UICollectionViewLayoutInvalidationContext {
+        let context = super.invalidationContext(forBoundsChange: newBounds)
+        
+        if currentBounds.width != newBounds.width {
+            layoutAttributesStorage.layoutAttributes.removeAll()
+            distribution = nil
+            currentBounds = newBounds
+        }
+        
+        return context
     }
 }
 
