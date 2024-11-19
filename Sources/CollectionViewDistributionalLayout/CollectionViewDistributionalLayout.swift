@@ -153,5 +153,12 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
             distribution = nil
         }
     }
+    
+    // Orientation
+    public override func prepare(forAnimatedBoundsChange oldBounds: CGRect) {
+        logger.info("prepare for animated bounds change")
+        super.prepare(forAnimatedBoundsChange: oldBounds)
+        layoutAttributesStorage.unmarkDistributions()
+    }
 }
 

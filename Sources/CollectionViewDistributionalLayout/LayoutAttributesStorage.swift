@@ -31,6 +31,12 @@ final class LayoutAttributesStorage {
         )
     }
     
+    func unmarkDistributions() {
+        for indexPath in layoutAttributes.keys {
+            layoutAttributes[indexPath]?.distribution = nil
+        }
+    }
+    
     @MainActor
     func makeUICollectionViewLayoutAttributes(
         forCellWith indexPath: IndexPath
