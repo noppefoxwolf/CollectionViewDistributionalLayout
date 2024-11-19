@@ -38,7 +38,7 @@ collectionView.collectionViewLayout = layout
 
 - [x] Self-size cells
 - [x] iPhone orientation
-- [ ] iPad orientation and Split View
+- [x] iPad orientation and Split View
 - [ ] animation
 - [ ] vertical
 
