@@ -1,8 +1,8 @@
 import CoreGraphics
 
 struct LayoutAttributes: Sendable {
-    var distribution: Distribution?
     var frame: CGRect
     var preferredFrame: CGRect?
+    var intrinsicFrame: CGRect { preferredFrame ?? frame }
     var zIndex: Int
 }

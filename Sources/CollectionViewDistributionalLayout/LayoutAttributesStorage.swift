@@ -23,7 +23,6 @@ final class LayoutAttributesStorage {
         of collectionView: UICollectionView        
     ) {
         layoutAttributes[indexPath] = LayoutAttributes(
-            distribution: nil,
             frame: CGRect(
                 x: sectionInset.left, // shouldInvalidateを呼ばせるために、見える位置に配置する
                 y: 0,
@@ -32,12 +31,6 @@ final class LayoutAttributesStorage {
             ),
             zIndex: zIndex
         )
-    }
-    
-    func unmarkDistributions() {
-        for indexPath in layoutAttributes.keys {
-            layoutAttributes[indexPath]?.distribution = nil
-        }
     }
     
     @MainActor
@@ -51,24 +44,24 @@ final class LayoutAttributesStorage {
         return attrs
     }
     
-    func contentSize() -> CGSize {
+    func contentSize(preferredSize: Bool) -> CGSize {
         var size: CGSize = .zero
         for section in sectionSequence() {
-            let sectionSize = sectionSize(at: section)
+            let sectionSize = sectionSize(at: section, preferredSize: preferredSize)
             size.width += sectionSize.width
             size.height = max(sectionSize.height, size.height)
         }
         return size
     }
     
-    func sectionSize(at section: Int) -> CGSize {
+    func sectionSize(at section: Int, preferredSize: Bool) -> CGSize {
         var size: CGSize = .zero
         size.width += sectionInset.left
         let rows = rowSequence(in: section)
         for row in rows {
             let indexPath = IndexPath(row: row, section: section)
             let layoutAttributes = layoutAttributes[indexPath]!
-            size.width += layoutAttributes.frame.width
+            size.width += preferredSize ? layoutAttributes.intrinsicFrame.width : layoutAttributes.frame.width
             size.width += minimumInteritemSpacing
             size.height = max(layoutAttributes.frame.height, size.height)
         }
@@ -80,11 +73,11 @@ final class LayoutAttributesStorage {
     }
     
     func allItemWidth(at section: Int) -> CGFloat {
-        layoutAttributes.filter({ $0.key.section == section }).values.map(\.frame.width).reduce(0, +)
+        layoutAttributes.filter({ $0.key.section == section }).values.map(\.intrinsicFrame.width).reduce(0, +)
     }
     
     func maxItemWidth() -> CGFloat {
-        layoutAttributes.values.map(\.frame.width).max() ?? 0
+        layoutAttributes.values.map(\.intrinsicFrame.width).max() ?? 0
     }
     
     @MainActor
@@ -119,7 +112,7 @@ final class LayoutAttributesStorage {
             for row in rows {
                 let indexPath = IndexPath(row: row, section: section)
                 let layoutAttributes = layoutAttributes[indexPath]!
-                let proportionalRatio = layoutAttributes.frame.width / sectionItemWidth
+                let proportionalRatio = layoutAttributes.intrinsicFrame.width / sectionItemWidth
                 let proportionallyItemWidth = proportionalRatio * availableItemWidth
                 sizes[indexPath] = proportionallyItemWidth
             }
@@ -132,9 +125,11 @@ final class LayoutAttributesStorage {
         of collectionView: UICollectionView
     ) -> [Int : CGFloat] {
         var sizes: [Int : CGFloat] = [:]
-        let allSectionWidth = sectionSequence().map(sectionSize(at:)).map(\.width).reduce(0.0, +)
+        let allSectionWidth = sectionSequence().map({
+            sectionSize(at: $0, preferredSize: true)
+        }).map(\.width).reduce(0.0, +)
         for section in sectionSequence() {
-            let sectionSize = sectionSize(at: section)
+            let sectionSize = sectionSize(at: section, preferredSize: true)
             let proportionalRatio = sectionSize.width / allSectionWidth
             let availableContentWidth = collectionView.safeAreaFrame.width
             let proportionallySectionWidth = proportionalRatio * availableContentWidth
@@ -145,7 +140,7 @@ final class LayoutAttributesStorage {
     
     @MainActor
     func preferredDistribution(of collectionView: UICollectionView) -> Distribution {
-        let contentWidth = contentSize().width
+        let contentWidth = contentSize(preferredSize: true).width
         if contentWidth <= collectionView.safeAreaFrame.width {
             let maxItemWidth = maxItemWidth()
             let equalItemWidth = equalItemWidth(of: collectionView)
