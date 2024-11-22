@@ -34,8 +34,8 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
             case .fill:
                 logger.debug("Distribution is fill")
                 layoutAttributesStorage.adjustLayoutAttributes { indexPath, x in
-                    layoutAttributesStorage.layoutAttributes[indexPath]!.x = x
-                    let width = layoutAttributesStorage.layoutAttributes[indexPath]!.width
+                    layoutAttributesStorage.layoutAttributes[indexPath]!.frame.origin.x = x
+                    let width = layoutAttributesStorage.layoutAttributes[indexPath]!.frame.width
                     return width
                 }
                 distribution = .fill
@@ -44,8 +44,8 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
                 let equalItemWidth = layoutAttributesStorage.equalItemWidth(of: collectionView)
                 layoutAttributesStorage.adjustLayoutAttributes { indexPath, x in
                     layoutAttributesStorage.layoutAttributes[indexPath]?.distribution = .fillEqually
-                    layoutAttributesStorage.layoutAttributes[indexPath]?.width = equalItemWidth
-                    layoutAttributesStorage.layoutAttributes[indexPath]?.x = x
+                    layoutAttributesStorage.layoutAttributes[indexPath]?.frame.size.width = equalItemWidth
+                    layoutAttributesStorage.layoutAttributes[indexPath]?.frame.origin.x = x
                     return equalItemWidth
                 }
                 distribution = .fillEqually
@@ -55,8 +55,8 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
                 layoutAttributesStorage.adjustLayoutAttributes { indexPath, x in
                     let proportionallyItemWidth = proportionalItemSizes[indexPath]!
                     layoutAttributesStorage.layoutAttributes[indexPath]?.distribution = .fillProportionally
-                    layoutAttributesStorage.layoutAttributes[indexPath]?.width = proportionallyItemWidth
-                    layoutAttributesStorage.layoutAttributes[indexPath]?.x = x
+                    layoutAttributesStorage.layoutAttributes[indexPath]?.frame.size.width = proportionallyItemWidth
+                    layoutAttributesStorage.layoutAttributes[indexPath]?.frame.origin.x = x
                     return proportionallyItemWidth
                 }
                 distribution = .fillProportionally
@@ -129,9 +129,12 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         // 5. Update the self-sized attributes
         layoutAttributesStorage.layoutAttributes[preferredAttributes.indexPath] = LayoutAttributes(
             distribution: .fill,
-            x: preferredAttributes.frame.minX,
-            width: preferredAttributes.size.width,
-            height: collectionView!.safeAreaFrame.height,
+            frame: CGRect(
+                x: preferredAttributes.frame.minX,
+                y: 0,
+                width: preferredAttributes.frame.width,
+                height: collectionView!.safeAreaFrame.height
+            ),
             zIndex: preferredAttributes.zIndex
         )
         

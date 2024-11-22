@@ -24,9 +24,12 @@ final class LayoutAttributesStorage {
     ) {
         layoutAttributes[indexPath] = LayoutAttributes(
             distribution: nil,
-            x: sectionInset.left, // shouldInvalidateを呼ばせるために、見える位置に配置する
-            width: estimatedItemSize.width,
-            height: collectionView.safeAreaFrame.inset(by: sectionInset).height,
+            frame: CGRect(
+                x: sectionInset.left, // shouldInvalidateを呼ばせるために、見える位置に配置する
+                y: 0,
+                width: estimatedItemSize.width,
+                height: collectionView.safeAreaFrame.inset(by: sectionInset).height
+            ),
             zIndex: zIndex
         )
     }
@@ -43,12 +46,7 @@ final class LayoutAttributesStorage {
     ) -> UICollectionViewLayoutAttributes {
         let layoutAttributes = layoutAttributes[indexPath]!
         let attrs = UICollectionViewLayoutAttributes(forCellWith: indexPath)
-        attrs.frame = CGRect(
-            x: layoutAttributes.x,
-            y: 0,
-            width: layoutAttributes.width,
-            height: layoutAttributes.height
-        )
+        attrs.frame = layoutAttributes.frame
         attrs.zIndex = layoutAttributes.zIndex
         return attrs
     }
@@ -70,9 +68,9 @@ final class LayoutAttributesStorage {
         for row in rows {
             let indexPath = IndexPath(row: row, section: section)
             let layoutAttributes = layoutAttributes[indexPath]!
-            size.width += layoutAttributes.width
+            size.width += layoutAttributes.frame.width
             size.width += minimumInteritemSpacing
-            size.height = max(layoutAttributes.height, size.height)
+            size.height = max(layoutAttributes.frame.height, size.height)
         }
         if rows.count >= 1 {
             size.width -= minimumInteritemSpacing
@@ -82,11 +80,11 @@ final class LayoutAttributesStorage {
     }
     
     func allItemWidth(at section: Int) -> CGFloat {
-        layoutAttributes.filter({ $0.key.section == section }).values.map(\.width).reduce(0, +)
+        layoutAttributes.filter({ $0.key.section == section }).values.map(\.frame.width).reduce(0, +)
     }
     
     func maxItemWidth() -> CGFloat {
-        layoutAttributes.values.map(\.width).max() ?? 0
+        layoutAttributes.values.map(\.frame.width).max() ?? 0
     }
     
     @MainActor
@@ -121,7 +119,7 @@ final class LayoutAttributesStorage {
             for row in rows {
                 let indexPath = IndexPath(row: row, section: section)
                 let layoutAttributes = layoutAttributes[indexPath]!
-                let proportionalRatio = layoutAttributes.width / sectionItemWidth
+                let proportionalRatio = layoutAttributes.frame.width / sectionItemWidth
                 let proportionallyItemWidth = proportionalRatio * availableItemWidth
                 sizes[indexPath] = proportionallyItemWidth
             }
