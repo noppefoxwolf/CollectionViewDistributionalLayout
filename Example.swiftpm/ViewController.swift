@@ -54,6 +54,17 @@ final class ViewController: UICollectionViewController {
         collectionView.collectionViewLayout = layout
         collectionView.dataSource = dataSource
         
+        // SafeArea デバッグ表示を追加
+        let debugView = SafeAreaDebugView()
+        debugView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(debugView)
+        NSLayoutConstraint.activate([
+            debugView.topAnchor.constraint(equalTo: view.topAnchor),
+            debugView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            debugView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            debugView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+        
         snapshot.appendSections([.items])
         snapshot.appendItems([
             .init(text: "Hello, World!"),
