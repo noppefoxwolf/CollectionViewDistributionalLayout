@@ -90,13 +90,17 @@ final class LayoutAttributesStorage {
     @MainActor
     func equalItemWidth(of collectionView: UICollectionView) -> CGFloat {
         var availableWidth = collectionView.safeAreaFrame.width
+        var totalSpacing: CGFloat = 0
+        
         for section in sectionSequence() {
-            availableWidth -= sectionInset.left
             let rows = rowSequence(in: section)
-            let totalSpacing = rows.count >= 1 ? minimumInteritemSpacing * CGFloat(rows.count - 1) : 0
-            availableWidth -= totalSpacing
-            availableWidth -= sectionInset.right
+            totalSpacing += rows.count >= 1 ? minimumInteritemSpacing * CGFloat(rows.count - 1) : 0
         }
+        
+        // セクションのインセットは全体で一度だけ適用
+        availableWidth -= sectionInset.left + sectionInset.right
+        availableWidth -= totalSpacing
+        
         let totalItemCount = layoutAttributes.count > 0 ? CGFloat(layoutAttributes.count) : 1
         availableWidth /= totalItemCount
         return availableWidth
@@ -174,10 +178,12 @@ final class LayoutAttributesStorage {
         }
     }
     
-    func adjustLayoutAttributes(_ updateCallback: (_ indexPath: IndexPath, _ xPosition: CGFloat) -> CGFloat) {
-        var currentX: CGFloat = .zero
+    @MainActor
+    func adjustLayoutAttributes(collectionView: UICollectionView, respectSafeArea: Bool = true, _ updateCallback: (_ indexPath: IndexPath, _ xPosition: CGFloat) -> CGFloat) {
+        let startX: CGFloat = respectSafeArea ? collectionView.safeAreaInsets.left + sectionInset.left : sectionInset.left
+        var currentX: CGFloat = startX
+        
         for section in sectionSequence() {
-            currentX += sectionInset.left
             let rows = rowSequence(in: section)
             for row in rows {
                 let indexPath = IndexPath(row: row, section: section)
@@ -187,7 +193,6 @@ final class LayoutAttributesStorage {
             if rows.count >= 1 {
                 currentX -= minimumInteritemSpacing
             }
-            currentX += sectionInset.right
         }
     }
     

@@ -104,8 +104,30 @@ struct LayoutAttributesStorageTestsFixed {
         )
         
         let equalItemWidth2 = storage.equalItemWidth(of: collectionView)
-        let expectEqualItemWidth2: CGFloat = (600.0 - 20.0 - 10.0 - 20.0 - 20.0 - 20.0) / 3
+        let expectEqualItemWidth2: CGFloat = (600.0 - 20.0 - 20.0 - 10.0) / 3
         #expect(equalItemWidth2 == expectEqualItemWidth2)
+    }
+    
+    @MainActor
+    @Test
+    func singleItemEqualWidth() {
+        let storage = LayoutAttributesStorage()
+        storage.sectionInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+        storage.minimumInteritemSpacing = 10
+        let collectionView = UICollectionView(
+            frame: CGRect(x: 0, y: 0, width: 600, height: 600),
+            collectionViewLayout: UICollectionViewLayout()
+        )
+        
+        let indexPath00 = IndexPath(row: 0, section: 0)
+        storage.layoutAttributes[indexPath00] = LayoutAttributes(
+            frame: CGRect(x: 0, y: 0, width: 225, height: 500),
+            zIndex: 0
+        )
+        
+        let equalItemWidth = storage.equalItemWidth(of: collectionView)
+        let expectEqualItemWidth: CGFloat = 600.0 - 20.0 - 20.0 // safe area - left inset - right inset
+        #expect(equalItemWidth == expectEqualItemWidth)
     }
     
     @MainActor

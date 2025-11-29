@@ -31,7 +31,8 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         switch preferredDistribution {
         case .fill:
             logger.debug("Distribution is fill")
-            layoutAttributesStorage.adjustLayoutAttributes { indexPath, xPosition in
+            let isOverflowing = layoutAttributesStorage.contentSize(preferredSize: true).width > collectionView.safeAreaFrame.width
+            layoutAttributesStorage.adjustLayoutAttributes(collectionView: collectionView, respectSafeArea: !isOverflowing) { indexPath, xPosition in
                 layoutAttributesStorage.layoutAttributes[indexPath]!.frame.origin.x = xPosition
                 layoutAttributesStorage.layoutAttributes[indexPath]!.frame.size.width =
                 layoutAttributesStorage.layoutAttributes[indexPath]!.intrinsicFrame.size.width
@@ -41,7 +42,7 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         case .fillEqually:
             logger.debug("Distribution is fillEqually")
             let equalItemWidth = layoutAttributesStorage.equalItemWidth(of: collectionView)
-            layoutAttributesStorage.adjustLayoutAttributes { indexPath, xPosition in
+            layoutAttributesStorage.adjustLayoutAttributes(collectionView: collectionView) { indexPath, xPosition in
                 layoutAttributesStorage.layoutAttributes[indexPath]?.frame.size.width = equalItemWidth
                 layoutAttributesStorage.layoutAttributes[indexPath]?.frame.origin.x = xPosition
                 return equalItemWidth
@@ -49,7 +50,7 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         case .fillProportionally:
             logger.debug("Distribution is fillProportionally")
             let proportionalItemSizes = layoutAttributesStorage.proportionalItemSizes(of: collectionView)
-            layoutAttributesStorage.adjustLayoutAttributes { indexPath, xPosition in
+            layoutAttributesStorage.adjustLayoutAttributes(collectionView: collectionView) { indexPath, xPosition in
                 let proportionalItemWidth = proportionalItemSizes[indexPath]!
                 layoutAttributesStorage.layoutAttributes[indexPath]?.frame.size.width = proportionalItemWidth
                 layoutAttributesStorage.layoutAttributes[indexPath]?.frame.origin.x = xPosition
