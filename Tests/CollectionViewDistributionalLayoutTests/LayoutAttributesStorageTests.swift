@@ -3,7 +3,7 @@ import UIKit
 @testable import CollectionViewDistributionalLayout
 
 @Suite
-struct LayoutAttributesStorageTests {
+struct LayoutAttributesStorageTestsFixed {
     @MainActor
     @Test
     func proportionalItemSizes() {
@@ -13,18 +13,12 @@ struct LayoutAttributesStorageTests {
         
         let indexPath00 = IndexPath(row: 0, section: 0)
         storage.layoutAttributes[indexPath00] = LayoutAttributes(
-            distribution: nil,
-            x: 0,
-            width: 225,
-            height: 500,
+            frame: CGRect(x: 0, y: 0, width: 225, height: 500),
             zIndex: 0
         )
         let indexPath10 = IndexPath(row: 1, section: 0)
         storage.layoutAttributes[indexPath10] = LayoutAttributes(
-            distribution: nil,
-            x: 0,
-            width: 75,
-            height: 500,
+            frame: CGRect(x: 0, y: 0, width: 75, height: 500),
             zIndex: 0
         )
         
@@ -56,10 +50,7 @@ struct LayoutAttributesStorageTests {
         
         let indexPath11 = IndexPath(row: 1, section: 1)
         storage.layoutAttributes[indexPath11] = LayoutAttributes(
-            distribution: nil,
-            x: 0,
-            width: 75,
-            height: 500,
+            frame: CGRect(x: 0, y: 0, width: 75, height: 500),
             zIndex: 0
         )
         let sizes2 = storage.proportionalItemSizes(of: collectionView)
@@ -93,18 +84,12 @@ struct LayoutAttributesStorageTests {
         
         let indexPath00 = IndexPath(row: 0, section: 0)
         storage.layoutAttributes[indexPath00] = LayoutAttributes(
-            distribution: nil,
-            x: 0,
-            width: 225,
-            height: 500,
+            frame: CGRect(x: 0, y: 0, width: 225, height: 500),
             zIndex: 0
         )
         let indexPath10 = IndexPath(row: 1, section: 0)
         storage.layoutAttributes[indexPath10] = LayoutAttributes(
-            distribution: nil,
-            x: 0,
-            width: 75,
-            height: 500,
+            frame: CGRect(x: 0, y: 0, width: 75, height: 500),
             zIndex: 0
         )
         
@@ -114,10 +99,7 @@ struct LayoutAttributesStorageTests {
         
         let indexPath11 = IndexPath(row: 1, section: 1)
         storage.layoutAttributes[indexPath11] = LayoutAttributes(
-            distribution: nil,
-            x: 0,
-            width: 75,
-            height: 500,
+            frame: CGRect(x: 0, y: 0, width: 75, height: 500),
             zIndex: 0
         )
         
@@ -131,24 +113,15 @@ struct LayoutAttributesStorageTests {
     func orderedDictionarySpec() {
         let storage = LayoutAttributesStorage()
         storage.layoutAttributes[IndexPath(row: 2, section: 0)] = LayoutAttributes(
-            distribution: nil,
-            x: 0,
-            width: 225,
-            height: 500,
+            frame: CGRect(x: 0, y: 0, width: 225, height: 500),
             zIndex: 0
         )
         storage.layoutAttributes[IndexPath(row: 1, section: 0)] = LayoutAttributes(
-            distribution: nil,
-            x: 0,
-            width: 225,
-            height: 500,
+            frame: CGRect(x: 0, y: 0, width: 225, height: 500),
             zIndex: 0
         )
         storage.layoutAttributes[IndexPath(row: 0, section: 1)] = LayoutAttributes(
-            distribution: nil,
-            x: 0,
-            width: 225,
-            height: 500,
+            frame: CGRect(x: 0, y: 0, width: 225, height: 500),
             zIndex: 0
         )
         // OrderedDictionaryは追加順になる
@@ -166,25 +139,19 @@ struct LayoutAttributesStorageTests {
         
         let indexPath00 = IndexPath(row: 0, section: 0)
         storage.layoutAttributes[indexPath00] = LayoutAttributes(
-            distribution: nil,
-            x: 0,
-            width: 225,
-            height: 500,
+            frame: CGRect(x: 0, y: 0, width: 225, height: 500),
             zIndex: 0
         )
         let width1: CGFloat = [20, 225, 20].reduce(0, +)
-        #expect(storage.contentSize().width == width1)
+        #expect(storage.contentSize(preferredSize: false).width == width1)
         
         let indexPath10 = IndexPath(row: 1, section: 0)
         storage.layoutAttributes[indexPath10] = LayoutAttributes(
-            distribution: nil,
-            x: 0,
-            width: 100,
-            height: 500,
+            frame: CGRect(x: 0, y: 0, width: 100, height: 500),
             zIndex: 0
         )
         let width2: CGFloat = [20, 225, 10, 100, 20].reduce(0, +)
-        #expect(storage.contentSize().width == width2)
+        #expect(storage.contentSize(preferredSize: false).width == width2)
     }
     
     @Test
@@ -192,10 +159,7 @@ struct LayoutAttributesStorageTests {
         let storage = LayoutAttributesStorage()
         let indexPath10 = IndexPath(row: 1, section: 4)
         storage.layoutAttributes[indexPath10] = LayoutAttributes(
-            distribution: nil,
-            x: 0,
-            width: 100,
-            height: 500,
+            frame: CGRect(x: 0, y: 0, width: 100, height: 500),
             zIndex: 0
         )
         #expect(storage.sectionSequence().first == 4)

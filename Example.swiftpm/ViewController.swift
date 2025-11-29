@@ -55,10 +55,10 @@ final class ViewController: UICollectionViewController {
         collectionView.dataSource = dataSource
         
         snapshot.appendSections([.items])
-//        snapshot.appendItems([
-//            .init(text: "Hello, World!"),
-//            .init(text: "Hello, World!"),
-//        ])
+        snapshot.appendItems([
+            .init(text: "Hello, World!"),
+            .init(text: "Hello, World!"),
+        ])
         dataSource.apply(snapshot, animatingDifferences: false)
         
         navigationItem.rightBarButtonItems = [
