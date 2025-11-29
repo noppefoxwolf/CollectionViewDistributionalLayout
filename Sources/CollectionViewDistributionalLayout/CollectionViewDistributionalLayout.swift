@@ -121,7 +121,7 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
             return context
         }
         layoutAttributesStorage.layoutAttributes[preferredAttributes.indexPath]!.preferredFrame = preferredAttributes.frame
-        layoutAttributesStorage.invalidateCachePublic()
+
         
         return context
     }

@@ -7,17 +7,10 @@ final class LayoutAttributesStorage {
         category: #file
     )
     
-    var layoutAttributes: [IndexPath: LayoutAttributes] = [:] {
-        didSet {
-            cache.invalidateAll()
-        }
-    }
+    var layoutAttributes: [IndexPath: LayoutAttributes] = [:]
     let estimatedItemSize = CGSize(width: 200, height: 200)
     var sectionInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
     var minimumInteritemSpacing: CGFloat = 10
-    
-    // Performance cache
-    private let cache = LayoutCache()
     
     var isEmpty: Bool { layoutAttributes.isEmpty }
     
@@ -37,10 +30,7 @@ final class LayoutAttributesStorage {
             zIndex: zIndex
         )
     }
-    
-    func invalidateCachePublic() {
-        cache.invalidateAll()
-    }
+
     
     @MainActor
     func makeUICollectionViewLayoutAttributes(
@@ -56,98 +46,86 @@ final class LayoutAttributesStorage {
     }
     
     func contentSize(preferredSize: Bool) -> CGSize {
-        return cache.contentSize(preferredSize: preferredSize) {
-            var size: CGSize = .zero
-            for section in sectionSequence() {
-                let sectionSize = self.sectionSize(at: section, preferredSize: preferredSize)
-                size.width += sectionSize.width
-                size.height = max(sectionSize.height, size.height)
-            }
-            return size
+        var size: CGSize = .zero
+        for section in sectionSequence() {
+            let sectionSize = self.sectionSize(at: section, preferredSize: preferredSize)
+            size.width += sectionSize.width
+            size.height = max(sectionSize.height, size.height)
         }
+        return size
     }
     
     func sectionSize(at section: Int, preferredSize: Bool) -> CGSize {
-        return cache.sectionSize(for: section, preferredSize: preferredSize) {
-            var size: CGSize = .zero
-            size.width += sectionInset.left
-            let rows = rowSequence(in: section)
-            for row in rows {
-                let indexPath = IndexPath(row: row, section: section)
-                let currentLayoutAttributes = layoutAttributes[indexPath]!
-                size.width += preferredSize ? currentLayoutAttributes.intrinsicFrame.width : currentLayoutAttributes.frame.width
-                size.width += minimumInteritemSpacing
-                size.height = max(currentLayoutAttributes.frame.height, size.height)
-            }
-            if rows.count >= 1 {
-                size.width -= minimumInteritemSpacing
-            }
-            size.width += sectionInset.right
-            return size
+        var size: CGSize = .zero
+        size.width += sectionInset.left
+        let rows = rowSequence(in: section)
+        for row in rows {
+            let indexPath = IndexPath(row: row, section: section)
+            let currentLayoutAttributes = layoutAttributes[indexPath]!
+            size.width += preferredSize ? currentLayoutAttributes.intrinsicFrame.width : currentLayoutAttributes.frame.width
+            size.width += minimumInteritemSpacing
+            size.height = max(currentLayoutAttributes.frame.height, size.height)
         }
+        if rows.count >= 1 {
+            size.width -= minimumInteritemSpacing
+        }
+        size.width += sectionInset.right
+        return size
     }
     
     func allItemWidth(at section: Int) -> CGFloat {
-        return cache.allItemWidth(for: section) {
-            var totalWidth: CGFloat = 0
-            for (indexPath, layoutAttributesData) in layoutAttributes {
-                if indexPath.section == section {
-                    totalWidth += layoutAttributesData.intrinsicFrame.width
-                }
+        var totalWidth: CGFloat = 0
+        for (indexPath, layoutAttributesData) in layoutAttributes {
+            if indexPath.section == section {
+                totalWidth += layoutAttributesData.intrinsicFrame.width
             }
-            return totalWidth
         }
+        return totalWidth
     }
     
     func maxItemWidth() -> CGFloat {
-        return cache.maxItemWidth {
-            layoutAttributes.values.map(\.intrinsicFrame.width).max() ?? 0
-        }
+        return layoutAttributes.values.map(\.intrinsicFrame.width).max() ?? 0
     }
     
     @MainActor
     func equalItemWidth(of collectionView: UICollectionView) -> CGFloat {
-        return cache.equalItemWidth {
-            var availableWidth = collectionView.safeAreaFrame.width
-            for section in sectionSequence() {
-                availableWidth -= sectionInset.left
-                let rows = rowSequence(in: section)
-                let totalSpacing = rows.count >= 1 ? minimumInteritemSpacing * CGFloat(rows.count - 1) : 0
-                availableWidth -= totalSpacing
-                availableWidth -= sectionInset.right
-            }
-            let totalItemCount = layoutAttributes.count > 0 ? CGFloat(layoutAttributes.count) : 1
-            availableWidth /= totalItemCount
-            return availableWidth
+        var availableWidth = collectionView.safeAreaFrame.width
+        for section in sectionSequence() {
+            availableWidth -= sectionInset.left
+            let rows = rowSequence(in: section)
+            let totalSpacing = rows.count >= 1 ? minimumInteritemSpacing * CGFloat(rows.count - 1) : 0
+            availableWidth -= totalSpacing
+            availableWidth -= sectionInset.right
         }
+        let totalItemCount = layoutAttributes.count > 0 ? CGFloat(layoutAttributes.count) : 1
+        availableWidth /= totalItemCount
+        return availableWidth
     }
     
     @MainActor
     func proportionalItemSizes(
         of collectionView: UICollectionView
     ) -> [IndexPath : CGFloat] {
-        return cache.proportionalItemSizes {
-            var sizes: [IndexPath : CGFloat] = [:]
-            let proportionalSectionSizes = proportionalSectionSizes(of: collectionView)
-            for section in sectionSequence() {
-                let sectionWidth = proportionalSectionSizes[section]!
-                let sectionItemWidth = allItemWidth(at: section)
-                let rows = rowSequence(in: section)
-                
-                let sectionInsets = sectionInset.left + sectionInset.right
-                let totalSpacing = rows.count >= 1 ? minimumInteritemSpacing * CGFloat(rows.count - 1) : 0
-                let availableItemWidth = sectionWidth - sectionInsets - totalSpacing
-                
-                for row in rows {
-                    let indexPath = IndexPath(row: row, section: section)
-                    let itemLayoutAttributes = layoutAttributes[indexPath]!
-                    let proportionalRatio = sectionItemWidth > 0 ? itemLayoutAttributes.intrinsicFrame.width / sectionItemWidth : 0
-                    let proportionalItemWidth = proportionalRatio * availableItemWidth
-                    sizes[indexPath] = proportionalItemWidth
-                }
+        var sizes: [IndexPath : CGFloat] = [:]
+        let proportionalSectionSizes = proportionalSectionSizes(of: collectionView)
+        for section in sectionSequence() {
+            let sectionWidth = proportionalSectionSizes[section]!
+            let sectionItemWidth = allItemWidth(at: section)
+            let rows = rowSequence(in: section)
+            
+            let sectionInsets = sectionInset.left + sectionInset.right
+            let totalSpacing = rows.count >= 1 ? minimumInteritemSpacing * CGFloat(rows.count - 1) : 0
+            let availableItemWidth = sectionWidth - sectionInsets - totalSpacing
+            
+            for row in rows {
+                let indexPath = IndexPath(row: row, section: section)
+                let itemLayoutAttributes = layoutAttributes[indexPath]!
+                let proportionalRatio = sectionItemWidth > 0 ? itemLayoutAttributes.intrinsicFrame.width / sectionItemWidth : 0
+                let proportionalItemWidth = proportionalRatio * availableItemWidth
+                sizes[indexPath] = proportionalItemWidth
             }
-            return sizes
         }
+        return sizes
     }
     
     @MainActor
@@ -211,19 +189,13 @@ final class LayoutAttributesStorage {
             }
             currentX += sectionInset.right
         }
-        // Layout attributes were modified, invalidate cache
-        cache.invalidateAll()
     }
     
     func sectionSequence() -> [Int] {
-        return cache.sectionSequence {
-            Array(Set(layoutAttributes.keys.map(\.section))).sorted()
-        }
+        return Array(Set(layoutAttributes.keys.map(\.section))).sorted()
     }
     
     func rowSequence(in section: Int) -> [Int] {
-        return cache.rowSequence(for: section) {
-            Array(Set(layoutAttributes.keys.filter({ $0.section == section }).map(\.row))).sorted()
-        }
+        return Array(Set(layoutAttributes.keys.filter({ $0.section == section }).map(\.row))).sorted()
     }
 }
