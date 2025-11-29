@@ -89,9 +89,11 @@ final class ViewController: UICollectionViewController, CollectionViewDistributi
         
         snapshot.appendSections([.items])
         snapshot.appendItems([
-            .init(text: "Hello, World!"),
-            .init(text: "Hello, World!"),
-        ])
+            "🦊",
+            "Buisiness & Finance",
+            "🦊",
+            "Lorem ipsum dolor sit amet consectetur adipiscing elit",
+        ].map(Item.init(text:)))
         dataSource.apply(snapshot, animatingDifferences: false)
         
         navigationItem.rightBarButtonItems = [
