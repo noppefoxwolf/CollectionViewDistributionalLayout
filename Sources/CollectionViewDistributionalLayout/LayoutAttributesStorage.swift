@@ -1,6 +1,4 @@
-import OrderedCollections
 import UIKit
-import Algorithms
 import os
 
 final class LayoutAttributesStorage {
@@ -9,7 +7,7 @@ final class LayoutAttributesStorage {
         category: #file
     )
     
-    var layoutAttributes: OrderedDictionary<IndexPath, LayoutAttributes> = [:] {
+    var layoutAttributes: [IndexPath: LayoutAttributes] = [:] {
         didSet {
             cache.invalidateAll()
         }

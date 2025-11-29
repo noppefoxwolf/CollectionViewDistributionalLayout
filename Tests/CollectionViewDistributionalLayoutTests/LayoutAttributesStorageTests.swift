@@ -110,7 +110,7 @@ struct LayoutAttributesStorageTestsFixed {
     
     @MainActor
     @Test
-    func orderedDictionarySpec() {
+    func dictionarySpec() {
         let storage = LayoutAttributesStorage()
         storage.layoutAttributes[IndexPath(row: 2, section: 0)] = LayoutAttributes(
             frame: CGRect(x: 0, y: 0, width: 225, height: 500),
@@ -124,10 +124,11 @@ struct LayoutAttributesStorageTestsFixed {
             frame: CGRect(x: 0, y: 0, width: 225, height: 500),
             zIndex: 0
         )
-        // OrderedDictionaryは追加順になる
-        #expect(storage.layoutAttributes.elements[0].key != IndexPath(row: 0, section: 0))
-        #expect(storage.layoutAttributes.elements[1].key == IndexPath(row: 1, section: 0))
-        #expect(storage.layoutAttributes.elements[2].key == IndexPath(row: 0, section: 1))
+        // 通常のDictionaryなので順序は保証されないが、要素は存在する
+        #expect(storage.layoutAttributes[IndexPath(row: 2, section: 0)] != nil)
+        #expect(storage.layoutAttributes[IndexPath(row: 1, section: 0)] != nil)
+        #expect(storage.layoutAttributes[IndexPath(row: 0, section: 1)] != nil)
+        #expect(storage.layoutAttributes.count == 3)
     }
     
     @MainActor

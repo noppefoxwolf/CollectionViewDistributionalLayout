@@ -12,15 +12,11 @@ let package = Package(
             targets: ["CollectionViewDistributionalLayout"]
         ),
     ],
-    dependencies: [
-        .package(url: "https://github.com/apple/swift-collections.git", from: "1.1.4"),
-    ],
+    dependencies: [],
     targets: [
         .target(
             name: "CollectionViewDistributionalLayout",
-            dependencies: [
-                .product(name: "OrderedCollections", package: "swift-collections"),
-            ]
+            dependencies: []
         ),
         .testTarget(
             name: "CollectionViewDistributionalLayoutTests",
