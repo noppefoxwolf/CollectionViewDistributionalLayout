@@ -7,6 +7,8 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         category: #file
     )
     
+    public weak var delegate: CollectionViewDistributionalLayoutDelegate?
+    
     let layoutAttributesStorage = LayoutAttributesStorage()
     lazy var currentBounds: CGRect = collectionView?.bounds ?? .zero
     
@@ -28,6 +30,10 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         let preferredDistribution = layoutAttributesStorage.preferredDistribution(
             of: collectionView
         )
+        
+        // Notify delegate about distribution change
+        delegate?.collectionViewDistributionalLayout(self, didUpdateDistribution: preferredDistribution)
+        
         switch preferredDistribution {
         case .fill:
             logger.debug("Distribution is fill")

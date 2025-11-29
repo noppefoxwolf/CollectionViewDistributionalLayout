@@ -11,7 +11,9 @@ struct Item: Hashable {
     let text: String
 }
 
-final class ViewController: UICollectionViewController {
+final class ViewController: UICollectionViewController, CollectionViewDistributionalLayoutDelegate {
+    var distributionLabel: UILabel!
+    
     let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: #file
@@ -50,9 +52,29 @@ final class ViewController: UICollectionViewController {
         super.viewDidLoad()
         
         let layout = CollectionViewDistributionalLayout()
+        layout.delegate = self
 //        let layout = UICollectionViewCompositionalLayout.list(using: .init(appearance: .plain))
         collectionView.collectionViewLayout = layout
         collectionView.dataSource = dataSource
+        
+        // Distribution表示用のラベルを追加
+        distributionLabel = UILabel()
+        distributionLabel.text = "Distribution: Unknown"
+        distributionLabel.backgroundColor = UIColor.black.withAlphaComponent(0.7)
+        distributionLabel.textColor = .white
+        distributionLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        distributionLabel.textAlignment = .center
+        distributionLabel.layer.cornerRadius = 8
+        distributionLabel.clipsToBounds = true
+        distributionLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(distributionLabel)
+        
+        NSLayoutConstraint.activate([
+            distributionLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            distributionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            distributionLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 150),
+            distributionLabel.heightAnchor.constraint(equalToConstant: 30)
+        ])
         
         // SafeArea デバッグ表示を追加
         let debugView = SafeAreaDebugView()
@@ -97,6 +119,17 @@ final class ViewController: UICollectionViewController {
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         logger.log("didSelectItemAt \(indexPath)")
+    }
+    
+    // MARK: - CollectionViewDistributionalLayoutDelegate
+    
+    func collectionViewDistributionalLayout(
+        _ layout: CollectionViewDistributionalLayout,
+        didUpdateDistribution distribution: Distribution
+    ) {
+        DispatchQueue.main.async {
+            self.distributionLabel.text = "Distribution: \(distribution)"
+        }
     }
 }
 
