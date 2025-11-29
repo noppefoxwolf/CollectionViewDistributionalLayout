@@ -45,8 +45,10 @@ final class LayoutAttributesStorage {
     @MainActor
     func makeUICollectionViewLayoutAttributes(
         forCellWith indexPath: IndexPath
-    ) -> UICollectionViewLayoutAttributes {
-        let layoutAttributesData = layoutAttributes[indexPath]!
+    ) -> UICollectionViewLayoutAttributes? {
+        guard let layoutAttributesData = layoutAttributes[indexPath] else {
+            return nil
+        }
         let uiAttributes = UICollectionViewLayoutAttributes(forCellWith: indexPath)
         uiAttributes.frame = layoutAttributesData.frame
         uiAttributes.zIndex = layoutAttributesData.zIndex

@@ -67,9 +67,11 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         guard let collectionView else { return nil }
         // 2. Return intersected and estimated items.
         let visibleElements: [UICollectionViewLayoutAttributes] = collectionView.indexPathSequence.compactMap { (indexPath) in
-            let layoutAttributes = layoutAttributesStorage.makeUICollectionViewLayoutAttributes(
+            guard let layoutAttributes = layoutAttributesStorage.makeUICollectionViewLayoutAttributes(
                 forCellWith: indexPath
-            )
+            ) else {
+                return nil
+            }
             // 3. estimated items always intersects
             let isIntersecting = rect.intersects(layoutAttributes.frame)
             guard isIntersecting else {
@@ -93,7 +95,9 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         forPreferredLayoutAttributes preferredAttributes: UICollectionViewLayoutAttributes,
         withOriginalAttributes originalAttributes: UICollectionViewLayoutAttributes
     ) -> Bool {
-        let currentLayoutAttributes = layoutAttributesStorage.layoutAttributes[preferredAttributes.indexPath]!
+        guard let currentLayoutAttributes = layoutAttributesStorage.layoutAttributes[preferredAttributes.indexPath] else {
+            return true // If layout attributes don't exist yet, invalidate to create them
+        }
         return currentLayoutAttributes.preferredFrame == nil
     }
     
@@ -113,6 +117,9 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         context.contentOffsetAdjustment.x -= isAboveLeftEdge ? -widthDiff : 0
         
         // 5. Update the self-sized attributes
+        guard layoutAttributesStorage.layoutAttributes[preferredAttributes.indexPath] != nil else {
+            return context
+        }
         layoutAttributesStorage.layoutAttributes[preferredAttributes.indexPath]!.preferredFrame = preferredAttributes.frame
         layoutAttributesStorage.invalidateCachePublic()
         
