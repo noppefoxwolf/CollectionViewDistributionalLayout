@@ -44,7 +44,12 @@ final class LabelContentView: UIView, UIContentView {
     func configure(configuration: UIContentConfiguration) {
         guard let configuration = configuration as? Configuration else { return }
         label.text = configuration.text
-//        label.backgroundColor = .red
+        
+        // セルの背景色とボーダーを設定して見やすくする
+        backgroundColor = UIColor.systemBlue.withAlphaComponent(0.2)
+        layer.borderColor = UIColor.systemBlue.cgColor
+        layer.borderWidth = 1.0
+        layer.cornerRadius = 8.0
     }
 }
 
