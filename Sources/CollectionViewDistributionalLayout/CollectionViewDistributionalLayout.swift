@@ -114,6 +114,7 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         
         // 5. Update the self-sized attributes
         layoutAttributesStorage.layoutAttributes[preferredAttributes.indexPath]!.preferredFrame = preferredAttributes.frame
+        layoutAttributesStorage.invalidateCachePublic()
         
         return context
     }
