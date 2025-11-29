@@ -90,7 +90,7 @@ final class LayoutAttributesStorage {
             width -= spacings
             width -= sectionInset.right
         }
-        width /= CGFloat(layoutAttributes.count)
+        width /= layoutAttributes.count > 0 ? CGFloat(layoutAttributes.count) : 1
         return width
     }
     
@@ -112,7 +112,7 @@ final class LayoutAttributesStorage {
             for row in rows {
                 let indexPath = IndexPath(row: row, section: section)
                 let layoutAttributes = layoutAttributes[indexPath]!
-                let proportionalRatio = layoutAttributes.intrinsicFrame.width / sectionItemWidth
+                let proportionalRatio = sectionItemWidth > 0 ? layoutAttributes.intrinsicFrame.width / sectionItemWidth : 0
                 let proportionallyItemWidth = proportionalRatio * availableItemWidth
                 sizes[indexPath] = proportionallyItemWidth
             }
@@ -130,7 +130,7 @@ final class LayoutAttributesStorage {
         }).map(\.width).reduce(0.0, +)
         for section in sectionSequence() {
             let sectionSize = sectionSize(at: section, preferredSize: true)
-            let proportionalRatio = sectionSize.width / allSectionWidth
+            let proportionalRatio = allSectionWidth > 0 ? sectionSize.width / allSectionWidth : 0
             let availableContentWidth = collectionView.safeAreaFrame.width
             let proportionallySectionWidth = proportionalRatio * availableContentWidth
             sizes[section] = proportionallySectionWidth
