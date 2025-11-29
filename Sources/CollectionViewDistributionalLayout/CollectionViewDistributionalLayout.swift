@@ -31,29 +31,29 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         switch preferredDistribution {
         case .fill:
             logger.debug("Distribution is fill")
-            layoutAttributesStorage.adjustLayoutAttributes { indexPath, x in
-                layoutAttributesStorage.layoutAttributes[indexPath]!.frame.origin.x = x
+            layoutAttributesStorage.adjustLayoutAttributes { indexPath, xPosition in
+                layoutAttributesStorage.layoutAttributes[indexPath]!.frame.origin.x = xPosition
                 layoutAttributesStorage.layoutAttributes[indexPath]!.frame.size.width =
                 layoutAttributesStorage.layoutAttributes[indexPath]!.intrinsicFrame.size.width
-                let width = layoutAttributesStorage.layoutAttributes[indexPath]!.frame.size.width
-                return width
+                let itemWidth = layoutAttributesStorage.layoutAttributes[indexPath]!.frame.size.width
+                return itemWidth
             }
         case .fillEqually:
             logger.debug("Distribution is fillEqually")
             let equalItemWidth = layoutAttributesStorage.equalItemWidth(of: collectionView)
-            layoutAttributesStorage.adjustLayoutAttributes { indexPath, x in
+            layoutAttributesStorage.adjustLayoutAttributes { indexPath, xPosition in
                 layoutAttributesStorage.layoutAttributes[indexPath]?.frame.size.width = equalItemWidth
-                layoutAttributesStorage.layoutAttributes[indexPath]?.frame.origin.x = x
+                layoutAttributesStorage.layoutAttributes[indexPath]?.frame.origin.x = xPosition
                 return equalItemWidth
             }
         case .fillProportionally:
             logger.debug("Distribution is fillProportionally")
             let proportionalItemSizes = layoutAttributesStorage.proportionalItemSizes(of: collectionView)
-            layoutAttributesStorage.adjustLayoutAttributes { indexPath, x in
-                let proportionallyItemWidth = proportionalItemSizes[indexPath]!
-                layoutAttributesStorage.layoutAttributes[indexPath]?.frame.size.width = proportionallyItemWidth
-                layoutAttributesStorage.layoutAttributes[indexPath]?.frame.origin.x = x
-                return proportionallyItemWidth
+            layoutAttributesStorage.adjustLayoutAttributes { indexPath, xPosition in
+                let proportionalItemWidth = proportionalItemSizes[indexPath]!
+                layoutAttributesStorage.layoutAttributes[indexPath]?.frame.size.width = proportionalItemWidth
+                layoutAttributesStorage.layoutAttributes[indexPath]?.frame.origin.x = xPosition
+                return proportionalItemWidth
             }
         }
         
@@ -66,19 +66,19 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
     ) -> [UICollectionViewLayoutAttributes]? {
         guard let collectionView else { return nil }
         // 2. Return intersected and estimated items.
-        let elements: [UICollectionViewLayoutAttributes] = collectionView.indexPathSequence.compactMap { (indexPath) in
-            let layoutAttribute = layoutAttributesStorage.makeUICollectionViewLayoutAttributes(
+        let visibleElements: [UICollectionViewLayoutAttributes] = collectionView.indexPathSequence.compactMap { (indexPath) in
+            let layoutAttributes = layoutAttributesStorage.makeUICollectionViewLayoutAttributes(
                 forCellWith: indexPath
             )
             // 3. estimated items always intersects
-            let intersects = rect.intersects(layoutAttribute.frame)
-            guard intersects else {
+            let isIntersecting = rect.intersects(layoutAttributes.frame)
+            guard isIntersecting else {
                 return nil
             }
-            return layoutAttribute
+            return layoutAttributes
         }
         let availableIndexPaths = collectionView.indexPathSequence.map({ $0 })
-        return elements.filter({ availableIndexPaths.contains($0.indexPath) })
+        return visibleElements.filter({ availableIndexPaths.contains($0.indexPath) })
     }
     
     public override func layoutAttributesForItem(
@@ -93,8 +93,8 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         forPreferredLayoutAttributes preferredAttributes: UICollectionViewLayoutAttributes,
         withOriginalAttributes originalAttributes: UICollectionViewLayoutAttributes
     ) -> Bool {
-        let layoutAttribute = layoutAttributesStorage.layoutAttributes[preferredAttributes.indexPath]!
-        return layoutAttribute.preferredFrame == nil
+        let currentLayoutAttributes = layoutAttributesStorage.layoutAttributes[preferredAttributes.indexPath]!
+        return currentLayoutAttributes.preferredFrame == nil
     }
     
     public override func invalidationContext(
