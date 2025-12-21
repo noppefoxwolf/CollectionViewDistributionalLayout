@@ -2,11 +2,6 @@ import UIKit
 import os
 
 public final class CollectionViewDistributionalLayout: CollectionViewLayout {
-    let logger = Logger(
-        subsystem: Bundle.main.bundleIdentifier!,
-        category: #file
-    )
-    
     public weak var delegate: CollectionViewDistributionalLayoutDelegate?
     
     let layoutAttributesStorage = LayoutAttributesStorage()
@@ -36,7 +31,6 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         
         switch preferredDistribution {
         case .fill:
-            logger.debug("Distribution is fill")
             let isOverflowing = layoutAttributesStorage.contentSize(preferredSize: true).width > collectionView.safeAreaFrame.width
             layoutAttributesStorage.adjustLayoutAttributes(collectionView: collectionView, respectSafeArea: !isOverflowing) { indexPath, xPosition in
                 layoutAttributesStorage.layoutAttributes[indexPath]!.frame.origin.x = xPosition
@@ -46,7 +40,6 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
                 return itemWidth
             }
         case .fillEqually:
-            logger.debug("Distribution is fillEqually")
             let equalItemWidth = layoutAttributesStorage.equalItemWidth(of: collectionView)
             layoutAttributesStorage.adjustLayoutAttributes(collectionView: collectionView) { indexPath, xPosition in
                 layoutAttributesStorage.layoutAttributes[indexPath]?.frame.size.width = equalItemWidth
@@ -54,7 +47,6 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
                 return equalItemWidth
             }
         case .fillProportionally:
-            logger.debug("Distribution is fillProportionally")
             let proportionalItemSizes = layoutAttributesStorage.proportionalItemSizes(of: collectionView)
             layoutAttributesStorage.adjustLayoutAttributes(collectionView: collectionView) { indexPath, xPosition in
                 let proportionalItemWidth = proportionalItemSizes[indexPath]!

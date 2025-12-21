@@ -2,11 +2,6 @@ import UIKit
 import os
 
 final class LayoutAttributesStorage {
-    let logger = Logger(
-        subsystem: Bundle.main.bundleIdentifier!,
-        category: #file
-    )
-    
     var layoutAttributes: [IndexPath: LayoutAttributes] = [:]
     let estimatedItemSize = CGSize(width: 200, height: 200)
     var sectionInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
