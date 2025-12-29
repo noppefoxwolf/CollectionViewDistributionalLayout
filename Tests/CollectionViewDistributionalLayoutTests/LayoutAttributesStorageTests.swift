@@ -55,14 +55,19 @@ struct LayoutAttributesStorageTestsFixed {
         )
         let sizes2 = storage.proportionalItemSizes(of: collectionView)
         
+        let expectWidth00_2: CGFloat = (600.0 - 20.0 - 20.0 - 20.0) * (225.0 / (225.0 + 75.0 + 75.0))
+        #expect(sizes2[indexPath00] == expectWidth00_2)
+        let expectWidth10_2: CGFloat = (600.0 - 20.0 - 20.0 - 20.0) * (75.0 / (225.0 + 75.0 + 75.0))
+        #expect(sizes2[indexPath10] == expectWidth10_2)
+        #expect(sizes2[indexPath11] == expectWidth10_2)
+        
         let width2 = [
             collectionView.adjustedContentInset.left,
             storage.sectionInset.left,
             sizes2[indexPath00]!,
             storage.minimumInteritemSpacing,
             sizes2[indexPath10]!,
-            storage.sectionInset.right,
-            storage.sectionInset.left,
+            storage.minimumInteritemSpacing,
             sizes2[indexPath11]!,
             storage.sectionInset.right,
             collectionView.adjustedContentInset.right
@@ -104,7 +109,7 @@ struct LayoutAttributesStorageTestsFixed {
         )
         
         let equalItemWidth2 = storage.equalItemWidth(of: collectionView)
-        let expectEqualItemWidth2: CGFloat = (600.0 - 20.0 - 20.0 - 10.0) / 3
+        let expectEqualItemWidth2: CGFloat = (600.0 - 20.0 - 20.0 - 20.0) / 3
         #expect(equalItemWidth2 == expectEqualItemWidth2)
     }
     

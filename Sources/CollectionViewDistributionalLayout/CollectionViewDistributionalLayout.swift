@@ -31,8 +31,7 @@ public final class CollectionViewDistributionalLayout: CollectionViewLayout {
         
         switch preferredDistribution {
         case .fill:
-            let isOverflowing = layoutAttributesStorage.contentSize(preferredSize: true).width > collectionView.adjustedContentFrame.width
-            layoutAttributesStorage.adjustLayoutAttributes(collectionView: collectionView, respectAdjustedContentInset: !isOverflowing) { indexPath, xPosition in
+            layoutAttributesStorage.adjustLayoutAttributes(collectionView: collectionView, respectAdjustedContentInset: true) { indexPath, xPosition in
                 layoutAttributesStorage.layoutAttributes[indexPath]!.frame.origin.x = xPosition
                 layoutAttributesStorage.layoutAttributes[indexPath]!.frame.size.width =
                 layoutAttributesStorage.layoutAttributes[indexPath]!.intrinsicFrame.size.width
