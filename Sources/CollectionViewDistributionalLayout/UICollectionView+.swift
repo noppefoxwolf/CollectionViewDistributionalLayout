@@ -20,7 +20,7 @@ extension UICollectionView {
 }
 
 extension UICollectionView {
-    var safeAreaFrame: CGRect {
-        bounds.inset(by: safeAreaInsets)
+    var adjustedContentFrame: CGRect {
+        bounds.inset(by: adjustedContentInset)
     }
 }

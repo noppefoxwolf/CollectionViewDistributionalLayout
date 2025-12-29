@@ -26,8 +26,8 @@ struct LayoutAttributesStorageTestsFixed {
             frame: CGRect(x: 0, y: 0, width: 600, height: 600),
             collectionViewLayout: UICollectionViewLayout()
         )
-        #expect(collectionView.safeAreaInsets.left == 0)
-        #expect(collectionView.safeAreaInsets.right == 0)
+        #expect(collectionView.adjustedContentInset.left == 0)
+        #expect(collectionView.adjustedContentInset.right == 0)
         let sizes = storage.proportionalItemSizes(of: collectionView)
         
         let expectWidth00: CGFloat = (600.0 - 20.0 - 20.0 - 10.0) * (225.0 / (225.0 + 75.0))
@@ -37,13 +37,13 @@ struct LayoutAttributesStorageTestsFixed {
         #expect(sizes[indexPath10] == expectWidth10)
         
         let width = [
-            collectionView.safeAreaInsets.left,
+            collectionView.adjustedContentInset.left,
             storage.sectionInset.left,
             sizes[indexPath00]!,
             storage.minimumInteritemSpacing,
             sizes[indexPath10]!,
             storage.sectionInset.right,
-            collectionView.safeAreaInsets.right
+            collectionView.adjustedContentInset.right
         ].reduce(0, +)
         
         #expect(width == 600)
@@ -56,7 +56,7 @@ struct LayoutAttributesStorageTestsFixed {
         let sizes2 = storage.proportionalItemSizes(of: collectionView)
         
         let width2 = [
-            collectionView.safeAreaInsets.left,
+            collectionView.adjustedContentInset.left,
             storage.sectionInset.left,
             sizes2[indexPath00]!,
             storage.minimumInteritemSpacing,
@@ -65,7 +65,7 @@ struct LayoutAttributesStorageTestsFixed {
             storage.sectionInset.left,
             sizes2[indexPath11]!,
             storage.sectionInset.right,
-            collectionView.safeAreaInsets.right
+            collectionView.adjustedContentInset.right
         ].reduce(0, +)
         
         #expect(width2 == 600)

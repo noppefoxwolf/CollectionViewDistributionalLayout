@@ -20,7 +20,7 @@ final class LayoutAttributesStorage {
                 x: sectionInset.left, // shouldInvalidateを呼ばせるために、見える位置に配置する
                 y: 0,
                 width: estimatedItemSize.width,
-                height: collectionView.safeAreaFrame.inset(by: sectionInset).height
+                height: collectionView.adjustedContentFrame.inset(by: sectionInset).height
             ),
             zIndex: zIndex
         )
@@ -84,7 +84,7 @@ final class LayoutAttributesStorage {
     
     @MainActor
     func equalItemWidth(of collectionView: UICollectionView) -> CGFloat {
-        var availableWidth = collectionView.safeAreaFrame.width
+        var availableWidth = collectionView.adjustedContentFrame.width
         var totalSpacing: CGFloat = 0
         
         for section in sectionSequence() {
@@ -148,7 +148,7 @@ final class LayoutAttributesStorage {
             return sections.reduce(into: [:]) { $0[$1] = 0 }
         }
         
-        let availableContentWidth = collectionView.safeAreaFrame.width
+        let availableContentWidth = collectionView.adjustedContentFrame.width
         for section in sections {
             let sectionWidth = individualSectionWidths[section]!
             let proportionalRatio = sectionWidth / totalSectionWidth
@@ -160,7 +160,7 @@ final class LayoutAttributesStorage {
     @MainActor
     func preferredDistribution(of collectionView: UICollectionView) -> Distribution {
         let contentWidth = contentSize(preferredSize: true).width
-        if contentWidth <= collectionView.safeAreaFrame.width {
+        if contentWidth <= collectionView.adjustedContentFrame.width {
             let maxItemWidth = maxItemWidth()
             let equalItemWidth = equalItemWidth(of: collectionView)
             if maxItemWidth <= equalItemWidth {
@@ -174,8 +174,8 @@ final class LayoutAttributesStorage {
     }
     
     @MainActor
-    func adjustLayoutAttributes(collectionView: UICollectionView, respectSafeArea: Bool = true, _ updateCallback: (_ indexPath: IndexPath, _ xPosition: CGFloat) -> CGFloat) {
-        let startX: CGFloat = respectSafeArea ? collectionView.safeAreaInsets.left + sectionInset.left : sectionInset.left
+    func adjustLayoutAttributes(collectionView: UICollectionView, respectAdjustedContentInset: Bool = true, _ updateCallback: (_ indexPath: IndexPath, _ xPosition: CGFloat) -> CGFloat) {
+        let startX: CGFloat = respectAdjustedContentInset ? collectionView.adjustedContentInset.left + sectionInset.left : sectionInset.left
         var currentX: CGFloat = startX
         
         for section in sectionSequence() {

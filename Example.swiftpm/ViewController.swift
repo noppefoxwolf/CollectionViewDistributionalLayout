@@ -13,6 +13,8 @@ struct Item: Hashable {
 
 final class ViewController: UICollectionViewController, CollectionViewDistributionalLayoutDelegate {
     var distributionLabel: UILabel!
+    private var insetToggleButton: UIBarButtonItem!
+    private var isAdjustedContentInsetEnabled = false
     
     let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -95,6 +97,14 @@ final class ViewController: UICollectionViewController, CollectionViewDistributi
             "Lorem ipsum dolor sit amet consectetur adipiscing elit",
         ].map(Item.init(text:)))
         dataSource.apply(snapshot, animatingDifferences: false)
+
+        insetToggleButton = UIBarButtonItem(
+            title: "Inset Off",
+            primaryAction: UIAction { [unowned self] _ in
+                isAdjustedContentInsetEnabled.toggle()
+                updateAdjustedContentInset()
+            }
+        )
         
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(
@@ -117,6 +127,8 @@ final class ViewController: UICollectionViewController, CollectionViewDistributi
                 }
             ),
         ]
+        navigationItem.leftBarButtonItem = insetToggleButton
+        updateAdjustedContentInset()
     }
     
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -133,5 +145,14 @@ final class ViewController: UICollectionViewController, CollectionViewDistributi
             self.distributionLabel.text = "Distribution: \(distribution)"
         }
     }
-}
 
+    private func updateAdjustedContentInset() {
+        let inset: UIEdgeInsets = isAdjustedContentInsetEnabled
+            ? UIEdgeInsets(top: 0, left: 24, bottom: 0, right: 24)
+            : .zero
+        collectionView.contentInset = inset
+        collectionView.scrollIndicatorInsets = inset
+        insetToggleButton.title = isAdjustedContentInsetEnabled ? "Inset On" : "Inset Off"
+        collectionView.collectionViewLayout.invalidateLayout()
+    }
+}
