@@ -23,6 +23,27 @@ let layout = CollectionViewDistributionalLayout()
 collectionView.collectionViewLayout = layout
 ```
 
+## SwiftUI
+
+The SwiftUI implementation is provided by the separate
+`CollectionViewDistributionalLayoutSwiftUI` product. Use
+`DistributionalScrollView` when you want the distribution and scroll behavior
+managed together:
+
+```swift
+import CollectionViewDistributionalLayoutSwiftUI
+
+DistributionalScrollView {
+    ForEach(items) { item in
+        ItemView(item: item)
+    }
+}
+```
+
+`DistributionalScrollView` disables scrolling when the ideal content width
+fits. For lower-level control, use `DistributionalHStackLayout` directly with
+an explicit `viewportWidth`.
+
 ## Installation
 
 ```swift

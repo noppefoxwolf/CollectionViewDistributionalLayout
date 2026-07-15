@@ -11,12 +11,20 @@ let package = Package(
             name: "CollectionViewDistributionalLayout",
             targets: ["CollectionViewDistributionalLayout"]
         ),
+        .library(
+            name: "CollectionViewDistributionalLayoutSwiftUI",
+            targets: ["CollectionViewDistributionalLayoutSwiftUI"]
+        ),
     ],
     dependencies: [],
     targets: [
         .target(
             name: "CollectionViewDistributionalLayout",
             dependencies: []
+        ),
+        .target(
+            name: "CollectionViewDistributionalLayoutSwiftUI",
+            dependencies: ["CollectionViewDistributionalLayout"]
         ),
         .testTarget(
             name: "CollectionViewDistributionalLayoutTests",

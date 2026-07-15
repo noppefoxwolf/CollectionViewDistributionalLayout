@@ -41,7 +41,8 @@ let package = Package(
         .executableTarget(
             name: "AppModule",
             dependencies: [
-                .product(name: "CollectionViewDistributionalLayout", package: "collectionviewdistributionallayout")
+                .product(name: "CollectionViewDistributionalLayout", package: "collectionviewdistributionallayout"),
+                .product(name: "CollectionViewDistributionalLayoutSwiftUI", package: "collectionviewdistributionallayout")
             ],
             path: "."
         )
