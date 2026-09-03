@@ -1,33 +1,42 @@
 import SwiftUI
+import UIKit
 import CollectionViewDistributionalLayoutSwiftUI
 
-struct ContentView: View {
-    var body: some View {
-        TabView {
-            SwiftUIExampleView()
-                .tabItem {
-                    Label("SwiftUI", systemImage: "rectangle.3.group")
-                }
+struct ContentView: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> UITabBarController {
+        let swiftUIViewController = UIHostingController(
+            rootView: SwiftUIExampleView()
+        )
+        swiftUIViewController.tabBarItem = UITabBarItem(
+            title: "SwiftUI",
+            image: UIImage(systemName: "rectangle.3.group"),
+            tag: 0
+        )
 
-            UIKitExampleView()
-                .tabItem {
-                    Label("UIKit", systemImage: "rectangle.3.group.fill")
-                }
-        }
-    }
-}
-
-private struct UIKitExampleView: UIViewControllerRepresentable {
-    func makeUIViewController(context: Context) -> UINavigationController {
-        UINavigationController(
+        let uikitViewController = UINavigationController(
             rootViewController: ViewController(
                 collectionViewLayout: UICollectionViewLayout()
             )
         )
+        uikitViewController.tabBarItem = UITabBarItem(
+            title: "UIKit",
+            image: UIImage(systemName: "rectangle.3.group.fill"),
+            tag: 1
+        )
+
+        let tabBarController = UITabBarController()
+        tabBarController.setViewControllers(
+            [swiftUIViewController, uikitViewController],
+            animated: false
+        )
+        if #available(iOS 18.0, *) {
+            tabBarController.mode = .tabSidebar
+        }
+        return tabBarController
     }
 
     func updateUIViewController(
-        _ uiViewController: UINavigationController,
+        _ uiViewController: UITabBarController,
         context: Context
     ) {}
 }
